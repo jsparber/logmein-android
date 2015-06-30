@@ -105,6 +105,7 @@ public class NetworkEngine {
     public StatusCode login(final String username, final String password) throws Exception {
         NetworkTask longRunningTask = new NetworkTask(m_context);
         longRunningTask.execute("login", username, password);
+        Log.d("login", "Login tryed");
         return longRunningTask.return_status;
     }
 
@@ -128,6 +129,7 @@ public class NetworkEngine {
      * @throws Exception
      */
     private StatusCode login_runner_prelogin(String username, String password) throws Exception {
+        Log.d("network", "run prelogin");
         String chal = "";
         String request = BASE_URL + "/prelogin";
         URL puServerUrl = new URL(request);
@@ -204,7 +206,7 @@ public class NetworkEngine {
         "UserName=" + username + 
         "&Realm=" + realm + 
         "&Password=" + password + 
-        "&form_id=69889&login=login"
+        "&form_id=69889&login=login";
 
         String request = "https://radius.uniurb.it/URB/test.php?" + urlParameters;
         URL puServerUrl = new URL(request);
@@ -367,15 +369,18 @@ public class NetworkEngine {
 
         public NetworkTask(Context context) {
             m_context = context;
+            Log.d("network", "Create Backgroud Proeccss");
         }
 
         @Override
         protected StatusCode doInBackground(String... input_strings) {
             String operation = input_strings[0];
+            Log.d("network", "Start Backgroud Proeccss");
             try {
                 if (operation.equals("login")) {
                     username = input_strings[1];
                     password = input_strings[2];
+                    Log.d("network", "Do login");
                     return_status = login_runner_prelogin(username, password);
                 } else if (operation.equals("logout")) {
                     return_status = logout_runner();

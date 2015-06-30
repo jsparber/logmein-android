@@ -148,13 +148,17 @@ public class LoginService extends Service {
      */
     public boolean isWifiLoginable() {
         final ArrayList<String> desired_ssid_list = new ArrayList<String>();
-        desired_ssid_list.add("pu@campus");
-        desired_ssid_list.add("\"pu@campus\"");
+        desired_ssid_list.add("STILABWIFI");
+        desired_ssid_list.add("tj-zone");
+        desired_ssid_list.add("\"STILABWIFI\"");
+        desired_ssid_list.add("\"tj-zone\"");
+
         WifiManager wifi = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         if (wifi != null) {
             WifiInfo wifiInfo = wifi.getConnectionInfo();
             if (wifiInfo != null) {
                 String ssid = wifiInfo.getSSID();
+        				Log.d("Login", "SSID: " + ssid);
                 for(String desired_ssid: desired_ssid_list) {
                     if (desired_ssid.equalsIgnoreCase(ssid))
                         return true;

@@ -352,6 +352,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         try {
+        	Log.d("login", "Start networkEngine.login");
             status = networkEngine.login(username, password);
         } catch (Exception e) {
             e.printStackTrace();
