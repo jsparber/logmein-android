@@ -45,7 +45,7 @@ import java.net.URLConnection;
 public class NetworkEngine {
 
     /** The url where login request will be posted */
-    public String BASE_URL = "https://securelogin.arubanetworks.com/cgi-bin/login";
+    public String BASE_URL = "http://172.23.198.1:3990";
     private static NetworkEngine instance = null;
     private static int use_count = 0;   //like semaphores
     Context m_context;
@@ -84,7 +84,7 @@ public class NetworkEngine {
                 username = input_strings[0];
                 password = input_strings[1];
                 try {
-                    return_status = login_runner(username, password);
+                    return_status = login_runner_prelogin(username, password);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -121,20 +121,15 @@ public class NetworkEngine {
 
     /**
      * TODO: check documentation
-     * Attempts to login into the network using credentials provided as parameters
+     * Request challange from accesspoint
      * @param username
      * @param password
      * @return status of login attempt
      * @throws Exception
      */
-    private StatusCode login_runner(String username, String password) throws Exception {
-        if (username == null || password == null) {
-            Log.wtf("Error", "Either username or password is null");
-            return StatusCode.CREDENTIAL_NONE;
-        }
-        String urlParameters = "user=" + username + "&password=" + password; // "param1=a&param2=b&param3=c";
-
-        String request = BASE_URL + "?cmd=login";
+    private StatusCode login_runner_prelogin(String username, String password) throws Exception {
+        String chal = "";
+        String request = BASE_URL + "/prelogin";
         URL puServerUrl = new URL(request);
 
         URLConnection puServerConnection = puServerUrl.openConnection();
@@ -147,7 +142,7 @@ public class NetworkEngine {
             OutputStream stream = puServerConnection.getOutputStream();
             //Output
             OutputStreamWriter writer = new OutputStreamWriter(stream);
-            writer.write(urlParameters);
+            //writer.write(urlParameters);
             writer.flush();
 
             String lineBuffer;
@@ -155,12 +150,89 @@ public class NetworkEngine {
                 BufferedReader htmlBuffer = new BufferedReader(new InputStreamReader(puServerConnection.getInputStream()));
                 try {
                     while (((lineBuffer = htmlBuffer.readLine()) != null) && returnStatus == null) {
-                        if (lineBuffer.contains("External Welcome Page")) {
+                        if (lineBuffer.contains("chal")) {
+                            Log.d("NetworkEngine", "External Welcome Match");
+                            Log.i("html", lineBuffer);
+                            returnStatus = StatusCode.LOGIN_SUCCESS;
+                        } else if (lineBuffer.contains("Fallito")) {
+                            returnStatus = StatusCode.AUTHENTICATION_FAILED;
+                        } else {
+                            Log.i("html", lineBuffer);
+                        }
+                    }
+                }finally {
+                    htmlBuffer.close();
+                }
+            }
+            catch (java.net.ProtocolException e) {
+                returnStatus = StatusCode.LOGGED_IN;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                writer.close();
+            }
+        } catch (java.net.ConnectException e) {
+            e.printStackTrace();
+            Log.d("NetworkEngine", "Connection Exception");
+            return StatusCode.CONNECTION_ERROR;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        returnStatus = login_runner(username, password, chal);
+        return returnStatus;
+    }
+
+    /**
+     * TODO: check documentation
+     * Attempts to login into the network using credentials provided as parameters
+     * @param username
+     * @param password
+     * @param chal
+     * @return status of login attempt
+     * @throws Exception
+     */
+    private StatusCode login_runner(String username, String password, String chal) throws Exception {
+        String realm = username.split("@")[1];
+        username = username.split("@")[0];
+        if (username == null || password == null || realm == null) {
+            Log.wtf("Error", "Either username, password or realm is null");
+            return StatusCode.CREDENTIAL_NONE;
+        }
+        String urlParameters = "chal=" + chal +
+        "&uamip=172.23.198.1" +
+        "&uamport=3990&userurl=&" +
+        "UserName=" + username + 
+        "&Realm=" + realm + 
+        "&Password=" + password + 
+        "&form_id=69889&login=login"
+
+        String request = "https://radius.uniurb.it/URB/test.php?" + urlParameters;
+        URL puServerUrl = new URL(request);
+
+        URLConnection puServerConnection = puServerUrl.openConnection();
+        puServerConnection.setDoOutput(true);
+
+        //FIXME: Handle protocol exception
+        StatusCode returnStatus = null;
+        //TODO: use try-with-resources
+        try {
+            OutputStream stream = puServerConnection.getOutputStream();
+            //Output
+            OutputStreamWriter writer = new OutputStreamWriter(stream);
+            //writer.write(urlParameters);
+            writer.flush();
+
+            String lineBuffer;
+            try {
+                BufferedReader htmlBuffer = new BufferedReader(new InputStreamReader(puServerConnection.getInputStream()));
+                try {
+                    while (((lineBuffer = htmlBuffer.readLine()) != null) && returnStatus == null) {
+                        if (lineBuffer.contains("Collegato a Uniurb")) {
                             Log.d("NetworkEngine", "External Welcome Match");
                             returnStatus = StatusCode.LOGIN_SUCCESS;
-                        } else if (lineBuffer.contains("Authentication failed")) {
+                        } else if (lineBuffer.contains("Fallito")) {
                             returnStatus = StatusCode.AUTHENTICATION_FAILED;
-                        } else if (lineBuffer.contains("Only one user login session is allowed")) {
+                        } else if (lineBuffer.contains("Only one user login session is allowed")) { //change to the right string
                             returnStatus = StatusCode.MULTIPLE_SESSIONS;
                         } else {
                             Log.i("html", lineBuffer);
@@ -195,7 +267,7 @@ public class NetworkEngine {
      */
     private NetworkEngine.StatusCode logout_runner() throws Exception {
         System.out.println("Loggin out");
-        URL puServerUrl = new URL(BASE_URL+"?cmd=logout");
+        URL puServerUrl = new URL(BASE_URL+"/logoff");
         URLConnection puServerConnection = puServerUrl.openConnection();
 
         StatusCode returnStatus = null;
@@ -304,7 +376,7 @@ public class NetworkEngine {
                 if (operation.equals("login")) {
                     username = input_strings[1];
                     password = input_strings[2];
-                    return_status = login_runner(username, password);
+                    return_status = login_runner_prelogin(username, password);
                 } else if (operation.equals("logout")) {
                     return_status = logout_runner();
                 }
