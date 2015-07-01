@@ -378,7 +378,7 @@ public class MainActivity extends ActionBarActivity {
      */
     public void launch_browser(View v) {
         startActivity(new Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://www.google.com")));
+                Uri.parse("http://www.duckduckgo.com")));
     }
 
     /**
