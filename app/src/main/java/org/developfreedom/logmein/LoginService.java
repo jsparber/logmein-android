@@ -149,9 +149,7 @@ public class LoginService extends Service {
     public boolean isWifiLoginable() {
         final ArrayList<String> desired_ssid_list = new ArrayList<String>();
         desired_ssid_list.add("STILABWIFI");
-        desired_ssid_list.add("tj-zone");
         desired_ssid_list.add("\"STILABWIFI\"");
-        desired_ssid_list.add("\"tj-zone\"");
 
         WifiManager wifi = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         if (wifi != null) {

@@ -163,12 +163,12 @@ public class NetworkEngine {
             return StatusCode.CREDENTIAL_NONE;
         }
         String urlParameters = "chal=" + chal +
-        "&uamip=172.23.198.1" +
-        "&uamport=3990&userurl=&" +
-        "UserName=" + username + 
-        "&Realm=" + realm + 
-        "&Password=" + password + 
-        "&form_id=69889&login=login";
+            "&uamip=172.23.198.1" +
+            "&uamport=3990&userurl=&" +
+            "UserName=" + username + 
+            "&Realm=" + realm + 
+            "&Password=" + password + 
+            "&form_id=69889&login=login";
 
         String request = "https://radius.uniurb.it/URB/test.php?" + urlParameters;
         URL puServerUrl = new URL(request);
@@ -223,7 +223,7 @@ public class NetworkEngine {
         return returnStatus;
     }
 
- /**
+    /**
      * TODO: check documentation
      * Do acutaly login
      * @param username
@@ -239,9 +239,12 @@ public class NetworkEngine {
 
         String location = puServerConnection.getHeaderField("Location");
         Log.d("network", location);
-        //s=failed
-        //=success
-        return StatusCode.LOGIN_SUCCESS;
+        if (location.contains("success")) {
+            returnStatus = StatusCode.LOGIN_SUCCESS;
+        } else if (location.contains("failed")) {
+            returnStatus = StatusCode.AUTHENTICATION_FAILED;
+        }
+        return returnStatus;
     }
 
 
@@ -257,32 +260,13 @@ public class NetworkEngine {
         URLConnection puServerConnection = puServerUrl.openConnection();
 
         StatusCode returnStatus = null;
-        //https://radius.uniurb.it/URB/hotspotlogin.php?res=logoff&uamip=172.23.198.1&uamport=3990&challenge=6882d304028b8aa8ee8374778580e770&called=00-0D-B9-1F-DC-39&mac=00-1E-8C-28-D2-CA&ip=172.23.198.135&nasid=sadtest&sessionid=55940c8300000008&userurl=http%3a%2f%2fgolem.de%2f&md=7F5265C1E7498D742BF05ECDA553BE16
-        //TODO: use try-with-resources
-        try {
-            //Get inputStream and show output
-            BufferedReader htmlBuffer = new BufferedReader(new InputStreamReader(puServerConnection.getInputStream()));
-            try {
-                //TODO parse output
-                String lineBuffer;
-                while ((lineBuffer = htmlBuffer.readLine()) != null && returnStatus == null) {
 
-                    if (lineBuffer.contains("Logout")) {
-                        returnStatus = StatusCode.LOGOUT_SUCCESS;
-                    } else if (lineBuffer.contains("User not logged in")) {
-                        returnStatus = StatusCode.NOT_LOGGED_IN;
-                    }
-                    Log.w("html", lineBuffer);
-                }
-            }finally {
-                htmlBuffer.close();
-            }
-        } catch (java.net.ConnectException e) {
-            e.printStackTrace();
-            Log.d("NetworkEngine", "Connection Exception");
-            return StatusCode.CONNECTION_ERROR;
-        } catch (Exception e) {
-            e.printStackTrace();
+        String location = puServerConnection.getHeaderField("Location");
+        Log.d("network", location);
+        if (location.contains("logoff")) {
+            returnStatus = StatusCode.LOGOUT_SUCCESS;
+        } else if (location.contains("User not logged in")) { //TO-DO chage to the right string
+            returnStatus = StatusCode.NOT_LOGGED_IN;
         }
         return returnStatus;
     }
@@ -336,10 +320,10 @@ public class NetworkEngine {
     public String getSelectedUsername() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(m_context);
         return preferences.getString(SettingsActivity.KEY_CURRENT_USERNAME,SettingsActivity.DEFAULT_KEY_CURRENT_USERNAME);
-/*
-        View rootView = ((Activity)m_context).getWindow().getDecorView().findViewById(android.R.id.content);
-        return (String) ((Spinner)rootView.findViewById(R.id.spinner_user_list)).getSelectedItem();
-*/
+        /*
+           View rootView = ((Activity)m_context).getWindow().getDecorView().findViewById(android.R.id.content);
+           return (String) ((Spinner)rootView.findViewById(R.id.spinner_user_list)).getSelectedItem();
+           */
     }
 
     /**
@@ -382,7 +366,7 @@ public class NetworkEngine {
                     m_context,
                     get_status_text(status),
                     Toast.LENGTH_SHORT
-            ).show();
+                    ).show();
         }
     }
 }
