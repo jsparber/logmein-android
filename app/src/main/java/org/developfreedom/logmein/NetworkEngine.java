@@ -133,54 +133,16 @@ public class NetworkEngine {
         String chal = "";
         String request = BASE_URL + "/prelogin";
         URL puServerUrl = new URL(request);
-
         URLConnection puServerConnection = puServerUrl.openConnection();
-        puServerConnection.setDoOutput(true);
 
-        //FIXME: Handle protocol exception
+        chal = puServerConnection.getHeaderField("Location").split("challenge=")[1].split("&")[0];
+        Log.d("network", "My challange: " + chal);
         StatusCode returnStatus = null;
-        //TODO: use try-with-resources
-        try {
-            OutputStream stream = puServerConnection.getOutputStream();
-            //Output
-            OutputStreamWriter writer = new OutputStreamWriter(stream);
-            //writer.write(urlParameters);
-            writer.flush();
 
-            String lineBuffer;
-            try {
-                BufferedReader htmlBuffer = new BufferedReader(new InputStreamReader(puServerConnection.getInputStream()));
-                try {
-                    while (((lineBuffer = htmlBuffer.readLine()) != null) && returnStatus == null) {
-                        if (lineBuffer.contains("chal")) {
-                            Log.d("NetworkEngine", "External Welcome Match");
-                            Log.i("html", lineBuffer);
-                            returnStatus = StatusCode.LOGIN_SUCCESS;
-                        } else if (lineBuffer.contains("Fallito")) {
-                            returnStatus = StatusCode.AUTHENTICATION_FAILED;
-                        } else {
-                            Log.i("html", lineBuffer);
-                        }
-                    }
-                }finally {
-                    htmlBuffer.close();
-                }
-            }
-            catch (java.net.ProtocolException e) {
-                returnStatus = StatusCode.LOGGED_IN;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }finally {
-                writer.close();
-            }
-        } catch (java.net.ConnectException e) {
-            e.printStackTrace();
-            Log.d("NetworkEngine", "Connection Exception");
-            return StatusCode.CONNECTION_ERROR;
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(chal != "") {
+            returnStatus = login_runner(username, password, chal);
         }
-        returnStatus = login_runner(username, password, chal);
+
         return returnStatus;
     }
 
@@ -229,15 +191,15 @@ public class NetworkEngine {
                 BufferedReader htmlBuffer = new BufferedReader(new InputStreamReader(puServerConnection.getInputStream()));
                 try {
                     while (((lineBuffer = htmlBuffer.readLine()) != null) && returnStatus == null) {
-                        if (lineBuffer.contains("Collegato a Uniurb")) {
-                            Log.d("NetworkEngine", "External Welcome Match");
-                            returnStatus = StatusCode.LOGIN_SUCCESS;
+                        if (lineBuffer.contains("http://172.23.198.1:3990/logon")) {
+                            Log.d("NetworkEngine", "External Welcome Match: " + lineBuffer.split("url=")[1].split("\">")[0]);
+                            returnStatus = login_runner_afterlogin(lineBuffer.split("url=")[1].split("\">")[0]);
                         } else if (lineBuffer.contains("Fallito")) {
                             returnStatus = StatusCode.AUTHENTICATION_FAILED;
                         } else if (lineBuffer.contains("Only one user login session is allowed")) { //change to the right string
                             returnStatus = StatusCode.MULTIPLE_SESSIONS;
                         } else {
-                            Log.i("html", lineBuffer);
+                            Log.i("html+login", lineBuffer);
                         }
                     }
                 }finally {
@@ -261,6 +223,28 @@ public class NetworkEngine {
         return returnStatus;
     }
 
+ /**
+     * TODO: check documentation
+     * Do acutaly login
+     * @param username
+     * @param password
+     * @return status of login attempt
+     * @throws Exception
+     */
+    private StatusCode login_runner_afterlogin(String request) throws Exception {
+        Log.d("network", "run afterlogin");
+        StatusCode returnStatus = null;
+        URL puServerUrl = new URL(request);
+        URLConnection puServerConnection = puServerUrl.openConnection();
+
+        String location = puServerConnection.getHeaderField("Location");
+        Log.d("network", location);
+        //s=failed
+        //=success
+        return StatusCode.LOGIN_SUCCESS;
+    }
+
+
     /**
      * TODO: check documentation
      * Attempt logout request to network
@@ -273,6 +257,7 @@ public class NetworkEngine {
         URLConnection puServerConnection = puServerUrl.openConnection();
 
         StatusCode returnStatus = null;
+        //https://radius.uniurb.it/URB/hotspotlogin.php?res=logoff&uamip=172.23.198.1&uamport=3990&challenge=6882d304028b8aa8ee8374778580e770&called=00-0D-B9-1F-DC-39&mac=00-1E-8C-28-D2-CA&ip=172.23.198.135&nasid=sadtest&sessionid=55940c8300000008&userurl=http%3a%2f%2fgolem.de%2f&md=7F5265C1E7498D742BF05ECDA553BE16
         //TODO: use try-with-resources
         try {
             //Get inputStream and show output
