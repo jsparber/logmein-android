@@ -145,8 +145,6 @@ public class NetworkEngine {
         if(chal != "") {
             returnStatus = login_runner(username, password, chal);
         }
-        ////Remove your preference
-        //cm.setNetworkPreference(ConnectivityManager.DEFAULT_NETWORK_PREFERENCE);
 
         return returnStatus;
     }
@@ -345,7 +343,7 @@ public class NetworkEngine {
             m_context = context;
             Log.d("network", "Create Backgroud Proeccss");
             ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            //Prefer mobile over wifi
+            //Prefer wifi
             cm.setNetworkPreference(ConnectivityManager.TYPE_WIFI);
         }
 
@@ -375,6 +373,8 @@ public class NetworkEngine {
                     get_status_text(status),
                     Toast.LENGTH_SHORT
                     ).show();
+        ////Remove your preference
+        //cm.setNetworkPreference(ConnectivityManager.DEFAULT_NETWORK_PREFERENCE);
         }
     }
 }
