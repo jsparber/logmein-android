@@ -129,7 +129,12 @@ public class NetworkEngine {
      * @throws Exception
      */
     private StatusCode login_runner_prelogin(String username, String password) throws Exception {
+
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        //Prefer mobile over wifi
+        cm.setNetworkPreference(ConnectivityManager.TYPE_WIFI);
         Log.d("network", "run prelogin");
+
         String chal = "";
         String request = BASE_URL + "/prelogin";
         URL puServerUrl = new URL(request);
@@ -142,6 +147,8 @@ public class NetworkEngine {
         if(chal != "") {
             returnStatus = login_runner(username, password, chal);
         }
+        ////Remove your preference
+        //cm.setNetworkPreference(ConnectivityManager.DEFAULT_NETWORK_PREFERENCE);
 
         return returnStatus;
     }
