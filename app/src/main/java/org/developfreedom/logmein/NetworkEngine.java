@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+import android.net.ConnectivityManager;
 
 import org.developfreedom.logmein.ui.SettingsActivity;
 
@@ -130,9 +131,6 @@ public class NetworkEngine {
      */
     private StatusCode login_runner_prelogin(String username, String password) throws Exception {
 
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        //Prefer mobile over wifi
-        cm.setNetworkPreference(ConnectivityManager.TYPE_WIFI);
         Log.d("network", "run prelogin");
 
         String chal = "";
@@ -346,6 +344,9 @@ public class NetworkEngine {
         public NetworkTask(Context context) {
             m_context = context;
             Log.d("network", "Create Backgroud Proeccss");
+            ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            //Prefer mobile over wifi
+            cm.setNetworkPreference(ConnectivityManager.TYPE_WIFI);
         }
 
         @Override
