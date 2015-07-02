@@ -1,4 +1,4 @@
-package org.developfreedom.logmein.tests;
+package com.juliansparber.urblogin.tests;
 
 import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
@@ -8,8 +8,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
-import org.developfreedom.logmein.R;
-import org.developfreedom.logmein.ui.MainActivity;
+import com.juliansparber.urblogin.R;
+import com.juliansparber.urblogin.ui.MainActivity;
 
 /**
  * Created by chaudhary on 10/19/14.

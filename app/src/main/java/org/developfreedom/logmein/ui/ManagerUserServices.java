@@ -18,7 +18,7 @@
  *   along with LogMeIn.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.developfreedom.logmein.ui;
+package com.juliansparber.urblogin.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,9 +36,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.developfreedom.logmein.DatabaseEngine;
-import org.developfreedom.logmein.R;
-import org.developfreedom.logmein.UserStructure;
+import com.juliansparber.urblogin.DatabaseEngine;
+import com.juliansparber.urblogin.R;
+import com.juliansparber.urblogin.UserStructure;
 
 /**
  * Provides services for managing the user information in database

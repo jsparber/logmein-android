@@ -18,7 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LogMeIn.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.developfreedom.logmein;
+package com.juliansparber.urblogin;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -39,8 +39,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.developfreedom.logmein.ui.MainActivity;
-import org.developfreedom.logmein.ui.SettingsActivity;
+import com.juliansparber.urblogin.ui.MainActivity;
+import com.juliansparber.urblogin.ui.SettingsActivity;
 
 import java.util.ArrayList;
 

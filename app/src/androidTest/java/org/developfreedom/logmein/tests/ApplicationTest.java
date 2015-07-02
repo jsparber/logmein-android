@@ -1,4 +1,4 @@
-package org.developfreedom.logmein.tests;
+package com.juliansparber.urblogin.tests;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

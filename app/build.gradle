@@ -5,12 +5,12 @@ android {
     buildToolsVersion "21.1.1"
 
     defaultConfig {
-        applicationId "org.developfreedom.logmein"
+        applicationId "com.juliansparber.urblogin"
         minSdkVersion 9
         targetSdkVersion 21
         versionCode 62
         versionName "0.6.2"
-        testApplicationId "org.developfreedom.logmein.tests"
+        testApplicationId "com.juliansparber.urblogin.tests"
     }
     buildTypes {
         release {

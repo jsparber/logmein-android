@@ -19,7 +19,7 @@
  *   along with LogMeIn.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.developfreedom.logmein;
+package com.juliansparber.urblogin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -29,7 +29,7 @@ import android.util.Log;
 import android.widget.Toast;
 import android.net.ConnectivityManager;
 
-import org.developfreedom.logmein.ui.SettingsActivity;
+import com.juliansparber.urblogin.ui.SettingsActivity;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
